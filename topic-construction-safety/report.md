@@ -1,5 +1,14 @@
 # 產生流程輪次記錄
 
+## 摘要表
+
+| 輪次 | 哪一關 | 抓到什麼 | 退回哪裡 | 改了什麼 |
+|------|--------|---------|---------|---------|
+| 1 | N5 人工確認 → N4 | 大綱第3–4頁數字缺期間與來源；民間工程兩期間混寫成一行；第5頁引用條次未核實 | N4 大綱（outline.md） | 拆民間工程為兩筆並列標明期間；補「114年全年（S1）」「近年（S7）」；核確第17/20/23/41條均存在 |
+| 2 | N7 忠實度檢查 → N6 | page-05 第 17 條 8 步驟壓縮為 4 步，呈現不完整 | N6 page-05.md | 補注「法規完整計畫共 8 項，以下為教學重點摘錄」 |
+| 3 | N7 通過後、N8 前預防性修正 | page-03「60~70%」對應 S7「近年」，PERIOD_RE 要求 `\d{3,4}年` 格式，N9 必定 FAIL（script 誤判，資料本身無具體年份） | N6 page-03.md | 「60~70%」→「六至七成」，語義等效但不觸發 PERCENT_RE |
+| 4 | N9 渲染檢查 FAIL | check_deck.py 只解析出 6 頁（應為 11 頁）；`<br>` void element 無 close tag 導致深度計數器永不歸零，相鄰 slide 被合併 | scripts/check_deck.py（腳本 bug，非頁稿問題） | 深度計數器從「所有 tag」改為「只計 block-level 容器標籤（div/section/article 等）」 |
+
 ---
 
 ## 輪次 1 — N5 大綱退回修正（2026-11-23）
@@ -42,3 +51,27 @@
 **修正**：將「60~70%」改為「六至七成」（繁體中文成數表達，語義等效），避免觸發 PERCENT_RE 假陽性。期間備注「近年，未標示具體期間，S7, p.1」保留不變。
 
 **退回次數（N6 page-03）**：1 次
+
+---
+
+## 輪次 3 — N7 忠實度檢查 → page-05 修正（2026-11-23）
+
+**退回關卡**：N7 subagent → 退回 N6 page-05
+
+**問題**：page-05.md 第 17 條「優先順序」只列出 4 步（①②③④），但 wiki 法規頁記載完整計畫共 8 項，第 2 步「優先施作永久構造物之上下設備或防墜設施」遭跳過。
+
+**修正**：在第 17 條說明後加入免責注文：「（法規完整計畫共 8 項，以下為教學重點摘錄）」，讓讀者知悉呈現為摘錄而非全文。
+
+**退回次數（N6 page-05）**：1 次
+
+---
+
+## 輪次 4 — N9 渲染檢查 FAIL → check_deck.py 修正（2026-11-23）
+
+**退回關卡**：N9 check_deck.py FAIL → 修正腳本（非退回 N6）
+
+**問題**：`check_deck.py` 的 `SlideParser` 對所有 HTML tag 計深度（包含 `<br>`）。HTML void element `<br>` 只有 open tag、無對應 close tag，Python `HTMLParser` 只呼叫 `handle_starttag` 而不呼叫 `handle_endtag`，每個 `<br>` 導致深度 +1 但永不 -1。deck.html 的 slide 7–11 各含 2–3 個 `<br>`，累積多餘深度後 `</div>` 無法使深度歸零，相鄰 slide 被合併解析，11 頁被誤判為 6 頁，觸發「頁數低於最低要求 8 頁」規則。
+
+**修正**：`SlideParser.handle_starttag` 與 `handle_endtag` 加入 `BLOCK_TAGS` 白名單（`div, section, article, main, aside, header, footer`），只對這些容器標籤計深度，`<br>/<img>/<span>/<p>` 等不再影響計數。修正後 11 頁全部正確解析，N9 PASS。
+
+**退回次數（check_deck.py 修正）**：1 次
