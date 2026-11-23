@@ -81,3 +81,9 @@
 - 更新頁面：wiki/concepts/prevention/墜落預防方法.md（補入S6法規條次，sources 加入 S6）
 - 更新頁面：wiki/index.md（S6來源條目、法規概念頁條目）
 - 備註：S6 為《營造安全衛生設施標準》法規全文（45頁、174條），修正日期 2021-01-06。本次 ingest 範圍限於三類主題——墜落飛落災害防止（第11-1、17–27條）、施工架（第39–52、59–60-1條）、個人防護具安全帽安全帶（第11-1、23條）——均保留條號。
+
+## [2026-11-23] query | 產生教學簡報 deck.html
+- 引用頁面：wiki/stats/歷年重大職災死亡統計.md、wiki/concepts/disasters/墜落災害.md、wiki/concepts/disasters/感電災害.md、wiki/concepts/disasters/倒塌崩塌災害.md、wiki/concepts/regulations/營造安全衛生設施標準-墜落防護.md、wiki/concepts/prevention/墜落預防方法.md、wiki/concepts/prevention/感電預防方法.md、wiki/concepts/prevention/倒塌崩塌預防方法.md、wiki/sources/S1–S7
+- 產出：topic-construction-safety/deck.html（11 頁，單一 HTML，無外部相依）
+- 新增 wiki 頁面：無
+- 備註：流程執行 N1–N10；N4 大綱退回一次（三點修正：期間標注、民間工程兩期間並列、法規條次確認）；N6 page-03 預防性修正（「60~70%」改「六至七成」以避免 PERCENT_RE 假陽性）；N7 子代理發現 page-05 第 17 條壓縮，補「教學重點摘錄」說明；check_deck.py 修正一次（深度計數器改為僅計 block-level 標籤，修正 `<br>` void element 導致計數失衡的問題）
